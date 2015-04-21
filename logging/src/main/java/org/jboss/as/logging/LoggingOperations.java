@@ -196,7 +196,7 @@ final class LoggingOperations {
         public final void execute(final OperationContext context, final ModelNode operation, final String name, final LogContextConfiguration logContextConfiguration) throws OperationFailedException {
             final Resource resource = context.createResource(PathAddress.EMPTY_ADDRESS);
             final ModelNode model = resource.getModel();
-            updateModel(operation, model);
+            updateModel(operation, model, context);
             if (context.isNormalServer()) {
                 context.addStep(new OperationStepHandler() {
                     @Override
@@ -215,7 +215,7 @@ final class LoggingOperations {
          *
          * @throws OperationFailedException if a processing error occurs
          */
-        public abstract void updateModel(ModelNode operation, ModelNode model) throws OperationFailedException;
+        public abstract void updateModel(ModelNode operation, ModelNode model, OperationContext context) throws OperationFailedException;
 
     }
 
@@ -229,7 +229,7 @@ final class LoggingOperations {
         public final void execute(final OperationContext context, final ModelNode operation, final String name, final LogContextConfiguration logContextConfiguration) throws OperationFailedException {
             final Resource resource = context.readResourceForUpdate(PathAddress.EMPTY_ADDRESS);
             final ModelNode model = resource.getModel();
-            updateModel(operation, model);
+            updateModel(operation, model, context);
             if (context.isNormalServer()) {
                 context.addStep(new OperationStepHandler() {
                     @Override
@@ -248,7 +248,7 @@ final class LoggingOperations {
          *
          * @throws OperationFailedException if a processing error occurs
          */
-        public abstract void updateModel(ModelNode operation, ModelNode model) throws OperationFailedException;
+        public abstract void updateModel(ModelNode operation, ModelNode model, OperationContext context) throws OperationFailedException;
 
     }
 

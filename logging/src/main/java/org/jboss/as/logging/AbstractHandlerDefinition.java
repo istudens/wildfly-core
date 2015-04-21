@@ -30,6 +30,7 @@ import static org.jboss.as.logging.CommonAttributes.FILTER;
 import static org.jboss.as.logging.CommonAttributes.FILTER_SPEC;
 import static org.jboss.as.logging.CommonAttributes.LEVEL;
 import static org.jboss.as.logging.CommonAttributes.NAME;
+import static org.jboss.as.logging.CommonAttributes.PATH_RESOLVED;
 
 import java.util.logging.Handler;
 import javax.xml.stream.XMLStreamException;
@@ -237,12 +238,14 @@ abstract class AbstractHandlerDefinition extends TransformerResourceDefinition {
                 case VERSION_1_3_0: {
                     resourceBuilder
                             .getAttributeBuilder()
+                            .setDiscard(DiscardAttributeChecker.ALWAYS, PATH_RESOLVED)
                             .setDiscard(DiscardAttributeChecker.UNDEFINED, NAMED_FORMATTER)
                             .addRejectCheck(RejectAttributeChecker.DEFINED, NAMED_FORMATTER)
                             .end();
                     loggingProfileResourceBuilder = loggingProfileBuilder.addChildResource(pathElement);
                     loggingProfileResourceBuilder
                             .getAttributeBuilder()
+                            .setDiscard(DiscardAttributeChecker.ALWAYS, PATH_RESOLVED)
                             .setDiscard(DiscardAttributeChecker.UNDEFINED, NAMED_FORMATTER)
                             .addRejectCheck(RejectAttributeChecker.DEFINED, NAMED_FORMATTER)
                             .end();
@@ -252,10 +255,12 @@ abstract class AbstractHandlerDefinition extends TransformerResourceDefinition {
                     final AttributeConverter attributeConverter = AttributeConverter.Factory
                             .createHardCoded(FORMATTER.getDefaultValue(), true);
                     resourceBuilder.getAttributeBuilder()
+                            .setDiscard(DiscardAttributeChecker.ALWAYS, PATH_RESOLVED)
                             .setValueConverter(attributeConverter, FORMATTER)
                             .end();
                     loggingProfileResourceBuilder = loggingProfileBuilder.addChildResource(pathElement);
                     loggingProfileResourceBuilder.getAttributeBuilder()
+                            .setDiscard(DiscardAttributeChecker.ALWAYS, PATH_RESOLVED)
                             .setValueConverter(attributeConverter, FORMATTER)
                             .end();
                     break;

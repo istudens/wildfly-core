@@ -105,7 +105,7 @@ public class PatternFormatterResourceDefinition extends TransformerResourceDefin
     static final OperationStepHandler ADD = new LoggingOperations.LoggingAddOperationStepHandler() {
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             for (AttributeDefinition attribute : ATTRIBUTES) {
                 attribute.validateAndSet(operation, model);
             }

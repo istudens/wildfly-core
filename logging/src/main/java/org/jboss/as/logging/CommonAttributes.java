@@ -82,7 +82,12 @@ public interface CommonAttributes {
             .setAttributeMarshaller(ElementAttributeMarshaller.VALUE_ATTRIBUTE_MARSHALLER)
             .build();
 
-    PropertyObjectTypeAttributeDefinition FILE = PropertyObjectTypeAttributeDefinition.Builder.of("file", RELATIVE_TO, PATH)
+    SimpleAttributeDefinition PATH_RESOLVED = SimpleAttributeDefinitionBuilder.create("path-resolved", ModelType.STRING, false)
+            .setAllowExpression(false)
+            .setStorageRuntime()
+            .build();
+
+    PropertyObjectTypeAttributeDefinition FILE = PropertyObjectTypeAttributeDefinition.Builder.of("file", RELATIVE_TO, PATH, PATH_RESOLVED)
             .setAllowExpression(false)
             .setAttributeMarshaller(new DefaultAttributeMarshaller() {
                 @Override

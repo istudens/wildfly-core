@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.client.helpers.Operations.CompositeOperationBuilder;
 import org.jboss.as.controller.services.path.PathResourceDefinition;
@@ -396,7 +397,7 @@ public class HandlerOperationsTestCase extends AbstractOperationsTestCase {
         testWrite(kernelServices, address, CommonAttributes.AUTOFLUSH, false);
 
         final ModelNode newFile = createFileValue("jboss.server.log.dir", newFilename);
-        testWrite(kernelServices, address, CommonAttributes.FILE, newFile);
+        testWriteFile(kernelServices, address, CommonAttributes.FILE, newFile);
         verifyFile(newFilename);
 
         // Undefine attributes
@@ -411,6 +412,21 @@ public class HandlerOperationsTestCase extends AbstractOperationsTestCase {
         removeFile(newFilename);
 
         testCommonFileOperations(kernelServices, address);
+    }
+
+    private void testWriteFile(final KernelServices kernelServices, final ModelNode address, final AttributeDefinition attribute, final ModelNode value) {
+        final ModelNode writeOp = SubsystemOperations.createWriteAttributeOperation(address, attribute, value);
+        executeOperation(kernelServices, writeOp);
+        // Create the read operation
+        final ModelNode readOp = SubsystemOperations.createReadAttributeOperation(address, attribute);
+        final ModelNode result = executeOperation(kernelServices, readOp);
+
+        // ditch path-resolved out of the result (it is a new, computed attribute based on the path attribute)
+        if (result.get("result").get(CommonAttributes.PATH_RESOLVED.getName()).isDefined()) {
+            result.get("result").remove(CommonAttributes.PATH_RESOLVED.getName());
+        }
+
+        assertEquals(value, SubsystemOperations.readResult(result));
     }
 
     private void testPeriodicRotatingFileHandler(final KernelServices kernelServices, final String profileName) throws Exception {
@@ -432,7 +448,7 @@ public class HandlerOperationsTestCase extends AbstractOperationsTestCase {
         testWrite(kernelServices, address, CommonAttributes.AUTOFLUSH, false);
 
         final ModelNode newFile = createFileValue("jboss.server.log.dir", newFilename);
-        testWrite(kernelServices, address, CommonAttributes.FILE, newFile);
+        testWriteFile(kernelServices, address, CommonAttributes.FILE, newFile);
         verifyFile(newFilename);
 
         testWrite(kernelServices, address, PeriodicHandlerResourceDefinition.SUFFIX, ".yyyy-MM-dd-HH");
@@ -470,7 +486,7 @@ public class HandlerOperationsTestCase extends AbstractOperationsTestCase {
         testWrite(kernelServices, address, CommonAttributes.AUTOFLUSH, false);
 
         final ModelNode newFile = createFileValue("jboss.server.log.dir", newFilename);
-        testWrite(kernelServices, address, CommonAttributes.FILE, newFile);
+        testWriteFile(kernelServices, address, CommonAttributes.FILE, newFile);
         verifyFile(newFilename);
 
         testWrite(kernelServices, address, SizeRotatingHandlerResourceDefinition.MAX_BACKUP_INDEX, 20);
@@ -510,7 +526,7 @@ public class HandlerOperationsTestCase extends AbstractOperationsTestCase {
         testWrite(kernelServices, address, CommonAttributes.AUTOFLUSH, false);
 
         final ModelNode newFile = createFileValue("jboss.server.log.dir", newFilename);
-        testWrite(kernelServices, address, CommonAttributes.FILE, newFile);
+        testWriteFile(kernelServices, address, CommonAttributes.FILE, newFile);
         verifyFile(newFilename);
 
         testWrite(kernelServices, address, SizeRotatingHandlerResourceDefinition.MAX_BACKUP_INDEX, 20);

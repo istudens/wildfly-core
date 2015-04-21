@@ -51,6 +51,7 @@ enum Attribute {
     NEW_LEVEL(CommonAttributes.NEW_LEVEL),
     OVERFLOW_ACTION(AsyncHandlerResourceDefinition.OVERFLOW_ACTION),
     PATH(PathResourceDefinition.PATH),
+    PATH_RESOLVED(CommonAttributes.PATH_RESOLVED),
     PATTERN(PatternFormatterResourceDefinition.PATTERN),
     QUEUE_LENGTH(AsyncHandlerResourceDefinition.QUEUE_LENGTH),
     RELATIVE_TO(PathResourceDefinition.RELATIVE_TO),

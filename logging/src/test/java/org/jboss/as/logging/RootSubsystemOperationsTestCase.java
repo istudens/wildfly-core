@@ -101,7 +101,7 @@ public class RootSubsystemOperationsTestCase extends AbstractOperationsTestCase 
         assertEquals("Log file " + logFile.getAbsolutePath() + " should not be a resource", currentSize, resources.size());
 
         // Change the file path of the file handler which should make it a log-file resource
-        op = SubsystemOperations.createWriteAttributeOperation(fhAddress, "file", createFileValue("jboss.server.log.dir", "fh-2.log"));
+        op = SubsystemOperations.createWriteAttributeOperation(fhAddress, "file", createFileValue("jboss.server.log.dir", "${test.file.fh:fh-2.log}"));
         executeOperation(kernelServices, op);
         // Should be an additional resource
         result = executeOperation(kernelServices, SubsystemOperations.createReadResourceOperation(address));

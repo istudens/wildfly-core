@@ -261,7 +261,9 @@ public class LoggingResource implements Resource {
                         // This should always exist, but better to be safe
                         if (handlerModel.hasDefined(CommonAttributes.FILE.getName())) {
                             final ModelNode fileModel = handlerModel.get(CommonAttributes.FILE.getName());
-                            if (fileModel.hasDefined(PathResourceDefinition.PATH.getName())) {
+                            if (fileModel.hasDefined(CommonAttributes.PATH_RESOLVED.getName())) {
+                                names.add(fileModel.get(CommonAttributes.PATH_RESOLVED.getName()).asString());
+                            } else if (fileModel.hasDefined(PathResourceDefinition.PATH.getName())) {
                                 names.add(fileModel.get(PathResourceDefinition.PATH.getName()).asString());
                             }
                         }

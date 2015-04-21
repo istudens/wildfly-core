@@ -55,6 +55,7 @@ import org.jboss.as.controller.OperationContext.Stage;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.logging.logging.LoggingLogger;
 import org.jboss.as.logging.logmanager.Log4jAppenderHandler;
@@ -103,7 +104,7 @@ final class HandlerOperations {
         }
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             for (AttributeDefinition attribute : attributes) {
                 // Filter attribute needs to be converted to filter spec
                 if (CommonAttributes.FILTER.equals(attribute)) {
@@ -111,6 +112,14 @@ final class HandlerOperations {
                     if (filter.isDefined()) {
                         final String value = Filters.filterToFilterSpec(filter);
                         model.get(CommonAttributes.FILTER_SPEC.getName()).set(value);
+                    }
+                } else if (CommonAttributes.FILE.equals(attribute)) {
+                    final ModelNode file = CommonAttributes.FILE.validateOperation(operation);
+                    // create a new 'path-resolved' attribute with a resolved 'path' attr (it is used by LoggingResource later)
+                    if (file.isDefined()) {
+                        final ModelNode path = context.resolveExpressions(file);
+                        file.get(CommonAttributes.PATH_RESOLVED.getName()).set(path.get(ModelDescriptionConstants.PATH));
+                        model.get(CommonAttributes.FILE.getName()).set(file);
                     }
                 } else {
                     // Only update the model for attributes that are defined in the operation
@@ -184,7 +193,7 @@ final class HandlerOperations {
         }
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             for (AttributeDefinition attribute : attributes) {
                 // Filter attribute needs to be converted to filter spec
                 if (CommonAttributes.FILTER.equals(attribute)) {
@@ -192,6 +201,14 @@ final class HandlerOperations {
                     if (filter.isDefined()) {
                         final String value = Filters.filterToFilterSpec(filter);
                         model.get(CommonAttributes.FILTER_SPEC.getName()).set(value);
+                    }
+                } else if (CommonAttributes.FILE.equals(attribute)) {
+                    final ModelNode file = CommonAttributes.FILE.validateOperation(operation);
+                    // create a new 'path-resolved' attribute with a resolved 'path' attr (it is used by LoggingResource later)
+                    if (file.isDefined()) {
+                        final ModelNode path = context.resolveExpressions(file);
+                        file.get(CommonAttributes.PATH_RESOLVED.getName()).set(path.get(ModelDescriptionConstants.PATH));
+                        model.get(CommonAttributes.FILE.getName()).set(file);
                     }
                 } else {
                     attribute.validateAndSet(operation, model);
@@ -421,6 +438,13 @@ final class HandlerOperations {
                 model.getModel().get(CommonAttributes.FILTER_SPEC.getName()).set(filterSpecValue);
             }
 
+            // create a new 'path-resolved' attribute with a resolved 'path' attr (it is used by LoggingResource later)
+            if (CommonAttributes.FILE.getName().equals(attributeName)) {
+                final ModelNode file = newValue.clone();
+                final ModelNode path = context.resolveExpressions(file);
+                newValue.get(CommonAttributes.PATH_RESOLVED.getName()).set(path.get(ModelDescriptionConstants.PATH));
+            }
+
             // Undefine formatter attribute if writing a named-formatter
             if (AbstractHandlerDefinition.NAMED_FORMATTER.getName().equals(attributeName)) {
                 // If the formatter is defined in the model, remove it
@@ -508,7 +532,7 @@ final class HandlerOperations {
      */
     static final OperationStepHandler ADD_SUBHANDLER = new HandlerUpdateOperationStepHandler() {
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             model.get(SUBHANDLERS.getName()).add(operation.get(HANDLER_NAME.getName()));
         }
 
@@ -531,7 +555,7 @@ final class HandlerOperations {
      */
     static final OperationStepHandler REMOVE_SUBHANDLER = new HandlerUpdateOperationStepHandler() {
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             final String handlerName = operation.get(HANDLER_NAME.getName()).asString();
             // Create a new handler list for the model
             boolean found = false;
@@ -563,7 +587,7 @@ final class HandlerOperations {
 
     static final LoggingOperations.LoggingUpdateOperationStepHandler ENABLE_HANDLER = new LoggingOperations.LoggingUpdateOperationStepHandler() {
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             // Set the enable attribute to true
             model.get(CommonAttributes.ENABLED.getName()).set(true);
         }
@@ -576,7 +600,7 @@ final class HandlerOperations {
 
     static final LoggingOperations.LoggingUpdateOperationStepHandler DISABLE_HANDLER = new LoggingOperations.LoggingUpdateOperationStepHandler() {
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             // Set the enable attribute to false
             model.get(CommonAttributes.ENABLED.getName()).set(false);
         }

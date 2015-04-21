@@ -196,6 +196,8 @@ public class HandlerLegacyOperationsTestCase extends AbstractOperationsTestCase 
         executeOperation(kernelServices, op);
         op = SubsystemOperations.createReadAttributeOperation(address, CommonAttributes.FILE);
         ModelNode result = executeOperation(kernelServices, op);
+        // 'path-resolved' attribute has to be ditched out as it is computed in the runtime based on 'path' attribute
+        ditchOutPathResolvedAttribute(result.get("result"));
         assertEquals(defaultFile, SubsystemOperations.readResult(result));
         verifyFile(filename);
 
@@ -204,6 +206,12 @@ public class HandlerLegacyOperationsTestCase extends AbstractOperationsTestCase 
         verifyRemoved(kernelServices, address);
         removeFile(filename);
         removeFile(newFilename);
+    }
+
+    private void ditchOutPathResolvedAttribute(ModelNode node) {
+        if (node.get(CommonAttributes.PATH_RESOLVED.getName()).isDefined()) {
+            node.remove(CommonAttributes.PATH_RESOLVED.getName());
+        }
     }
 
     private void testPeriodicRotatingFileHandler(final KernelServices kernelServices, final String profileName) throws Exception {
@@ -247,6 +255,8 @@ public class HandlerLegacyOperationsTestCase extends AbstractOperationsTestCase 
         executeOperation(kernelServices, op);
         op = SubsystemOperations.createReadAttributeOperation(address, CommonAttributes.FILE);
         ModelNode result = executeOperation(kernelServices, op);
+        // 'path-resolved' attribute has to be ditched out as it is computed in the runtime based on 'path' attribute
+        ditchOutPathResolvedAttribute(result.get("result"));
         assertEquals(defaultFile, SubsystemOperations.readResult(result));
         verifyFile(filename);
 
@@ -298,6 +308,8 @@ public class HandlerLegacyOperationsTestCase extends AbstractOperationsTestCase 
         executeOperation(kernelServices, op);
         op = SubsystemOperations.createReadAttributeOperation(address, CommonAttributes.FILE);
         ModelNode result = executeOperation(kernelServices, op);
+        // 'path-resolved' attribute has to be ditched out as it is computed in the runtime based on 'path' attribute
+        ditchOutPathResolvedAttribute(result.get("result"));
         assertEquals(defaultFile, SubsystemOperations.readResult(result));
         verifyFile(filename);
 
@@ -383,12 +395,24 @@ public class HandlerLegacyOperationsTestCase extends AbstractOperationsTestCase 
         // Value should be changed
         op = SubsystemOperations.createReadAttributeOperation(address, attribute);
         final ModelNode result = executeOperation(kernelServices, op);
+
+        // ditch out an attribute 'path-resolved' which is computed in the runtime and based on the 'path' attribute
+        if (attribute.getName().equals(CommonAttributes.FILE.getName())) {
+            ditchOutPathResolvedAttribute(result.get("result"));
+        }
+
         assertEquals(value, SubsystemOperations.readResult(result));
 
         // Compare the updated model with the original model, slightly modified
         final ModelNode newModel = SubsystemOperations.readResult(executeOperation(kernelServices, SubsystemOperations.createReadResourceOperation(address, true)));
         // Replace the value in the original model, all other attributes should match
         original.get(attribute.getName()).set(value);
+
+        // again ditch out the 'path-resolved' attribute
+        if (attribute.getName().equals(CommonAttributes.FILE.getName())) {
+            ditchOutPathResolvedAttribute(newModel.get(CommonAttributes.FILE.getName()));
+        }
+
         compare(original, newModel);
     }
 

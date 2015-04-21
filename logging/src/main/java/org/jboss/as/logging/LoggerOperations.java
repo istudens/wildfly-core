@@ -56,7 +56,7 @@ final class LoggerOperations {
     abstract static class LoggerUpdateOperationStepHandler extends LoggingOperations.LoggingUpdateOperationStepHandler {
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
 
         }
 
@@ -96,7 +96,7 @@ final class LoggerOperations {
         }
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             for (AttributeDefinition attribute : attributes) {
                 // Filter attribute needs to be converted to filter spec
                 if (CommonAttributes.FILTER.equals(attribute)) {
@@ -199,7 +199,7 @@ final class LoggerOperations {
     static final OperationStepHandler ADD_HANDLER = new LoggerUpdateOperationStepHandler() {
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             model.get(HANDLERS.getName()).add(operation.get(HANDLER_NAME.getName()));
         }
 
@@ -222,7 +222,7 @@ final class LoggerOperations {
     static final OperationStepHandler REMOVE_HANDLER = new LoggerUpdateOperationStepHandler() {
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             final String handlerName = operation.get(HANDLER_NAME.getName()).asString();
             // Create a new handler list for the model
             boolean found = false;
@@ -253,7 +253,7 @@ final class LoggerOperations {
     static final OperationStepHandler CHANGE_LEVEL = new LoggerUpdateOperationStepHandler() {
 
         @Override
-        public void updateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        public void updateModel(final ModelNode operation, final ModelNode model, final OperationContext context) throws OperationFailedException {
             LEVEL.validateAndSet(operation, model);
         }
 
